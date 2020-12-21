@@ -1,7 +1,7 @@
 @echo on
 echo Process begins
 call "%CONDA_INSTALL_LOCN%"\Scripts\activate.bat
-call conda upda-V
+call conda -V
 call conda install --yes anaconda-client
 call conda install --yes conda-build=3.18.11
 call conda install --yes -c intel mkl-devel
