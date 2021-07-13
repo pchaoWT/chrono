@@ -296,6 +296,8 @@ void ChElasticityCosseratAdvancedGeneric::ComputeStiffnessMatrix(ChMatrixNM<doub
 // -----------------------------------------------------------------------------
 
 void ChElasticityCosseratAdvancedGenericFPM::ComputeTransformMatrix() {
+    // Initialization of the transformation matrix
+    this->T.setIdentity();
 
     // In case the section is rotated:
     ChMatrix33<> RotsectA;

@@ -487,7 +487,7 @@ class ChApi ChElasticityCosseratAdvancedGenericFPM : public ChElasticityCosserat
 
     virtual ~ChElasticityCosseratAdvancedGenericFPM() {}
 
-    virtual void SetEMatrix(const ChMatrixNM<double, 6, 6> mKlaw) { Klaw = mKlaw; }
+    virtual void SetEMatrix(const ChMatrixNM<double, 6, 6>& mKlaw) { Klaw = mKlaw; }
 
     virtual ChMatrixNM<double, 6, 6>& GetEMatrix() { return Klaw; }
 
@@ -526,6 +526,9 @@ class ChApi ChElasticityCosseratAdvancedGenericFPM : public ChElasticityCosserat
     // after input section rotation and elastic center/shear center offset.
     // This should be called by end user.
     void UpdateEMatrix();
+
+    // Get the tranformation matrix of seciton, may be useful for debug
+    virtual ChMatrixNM<double, 6, 6>& GetTransformMatrix() { return this->T; }
 
     // Interface to base:
 
