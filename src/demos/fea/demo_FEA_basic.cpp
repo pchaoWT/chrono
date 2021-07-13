@@ -2401,7 +2401,7 @@ void test_11() {
             double beam_length = L;
             auto mnodeA = chrono_types::make_shared<ChNodeFEAxyzrot>(ChFrame<>(ChVector<>(0, 0, 0), root_frame_local.GetRot()));
             auto mnodeB = chrono_types::make_shared<ChNodeFEAxyzrot>(ChFrame<>(ChVector<>(beam_length, 0, 0), root_frame_local.GetRot()));
-            int beam_count = 2;
+            int beam_count = 5;
 
             chrono::fea::ChBuilderBeamIGA beamBuilder;
             auto mymesh = chrono_types::make_shared<ChMesh>();

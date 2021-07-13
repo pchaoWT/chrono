@@ -29,7 +29,6 @@ ChElementBeamTaperedTimoshenko::ChElementBeamTaperedTimoshenko()
       use_geometric_stiffness(true),
       use_Rc(true),
       use_Rs(true) {
-
     nodes.resize(2);
 
     Km.setZero(this->GetNdofs(), this->GetNdofs());
@@ -38,6 +37,7 @@ ChElementBeamTaperedTimoshenko::ChElementBeamTaperedTimoshenko()
     Rm.setZero(this->GetNdofs(), this->GetNdofs());
     Ri.setZero(this->GetNdofs(), this->GetNdofs());
     Ki.setZero(this->GetNdofs(), this->GetNdofs());
+
     T.setZero(this->GetNdofs(), this->GetNdofs());
     Rs.setIdentity(6, 6);
     Rc.setIdentity(6, 6);
@@ -147,7 +147,6 @@ void ChElementBeamTaperedTimoshenko::ShapeFunctionsTimoshenko(ShapeFunctionGroup
     N(3, 3) = Nx1;
     N(3, 9) = Nx2;
 
-
     // Variables named with initial 'k' means block of shape function matrix
     // Variables named with initial 'd' means derivatives respect to x
     // 'd'   --> first derivative
@@ -223,8 +222,6 @@ void ChElementBeamTaperedTimoshenko::ShapeFunctionsTimoshenko(ShapeFunctionGroup
     N(5, 7) = dNbu2_dx * ay;                   // + dNsu2_dx * by;
     N(5, 11) = dNbr3_dx * ay + dNbr4_dx * by;  // + dNsr_dx  * by;
 
-
-
     // Second derivatives
     double ddNbu1_dx = 6. * eta / LL;
     double ddNbu2_dx = -6. * eta / LL;
@@ -242,7 +239,6 @@ void ChElementBeamTaperedTimoshenko::ShapeFunctionsTimoshenko(ShapeFunctionGroup
     ddkNbz_dx.setZero();
     ddkNbz_dx << ddNbu1_dx * az, -ddNbr1_dx * az - ddNbr2_dx * bz, ddNbu2_dx * az, -ddNbr3_dx * az - ddNbr4_dx * bz;
 
-
     // Third derivatives
     double dddNbu1_dx = 12. / LLL;
     double dddNbu2_dx = -12. / LLL;
@@ -254,11 +250,13 @@ void ChElementBeamTaperedTimoshenko::ShapeFunctionsTimoshenko(ShapeFunctionGroup
 
     SFBlock dddkNby_dx;
     dddkNby_dx.setZero();
-    dddkNby_dx << dddNbu1_dx * ay, dddNbr1_dx * ay + dddNbr2_dx * by, dddNbu2_dx * ay, dddNbr3_dx * ay + dddNbr4_dx * by;
+    dddkNby_dx << dddNbu1_dx * ay, dddNbr1_dx * ay + dddNbr2_dx * by, dddNbu2_dx * ay,
+        dddNbr3_dx * ay + dddNbr4_dx * by;
 
     SFBlock dddkNbz_dx;
     dddkNbz_dx.setZero();
-    dddkNbz_dx << dddNbu1_dx * az, -dddNbr1_dx * az - dddNbr2_dx * bz, dddNbu2_dx * az, -dddNbr3_dx * az - dddNbr4_dx * bz;
+    dddkNbz_dx << dddNbu1_dx * az, -dddNbr1_dx * az - dddNbr2_dx * bz, dddNbu2_dx * az,
+        -dddNbr3_dx * az - dddNbr4_dx * bz;
 
     ShapeFunction5Blocks SFblk = std::make_tuple(kNby, kNsy, kNbz, kNsz, kNx);
     ShapeFunction5Blocks SFblk1d = std::make_tuple(dkNby_dx, dkNsy_dx, dkNbz_dx, dkNsz_dx, dkNx_dx);
@@ -358,7 +356,6 @@ void ChElementBeamTaperedTimoshenko::GetField_dt(ChVectorDynamic<>& mD_dt) {
     // Node 1, x,y,z ang.velocity (in local element frame, corotated back by A' )
     mD_dt.segment(9, 3) = q_element_abs_rot.RotateBack(nodes[1]->Frame().GetWvel_par()).eigen();
 }
-
 
 void ChElementBeamTaperedTimoshenko::GetField_dtdt(ChVectorDynamic<>& mD_dtdt) {
     mD_dtdt.resize(12);
@@ -701,16 +698,10 @@ void ChElementBeamTaperedTimoshenko::ComputeGeometricStiffnessMatrix() {
     // Analysis?
 
     /**
-    double EA1 = this->taperedSection->GetSectionA()->GetAxialRigidity();
-    double EIyy1 = this->taperedSection->GetSectionA()->GetYbendingRigidity();
-    double EIzz1 = this->taperedSection->GetSectionA()->GetZbendingRigidity();
     double EA1 = this->tapered_section->GetSectionA()->GetAxialRigidity();
     double EIyy1 = this->tapered_section->GetSectionA()->GetYbendingRigidity();
     double EIzz1 = this->tapered_section->GetSectionA()->GetZbendingRigidity();
 
-    double EA2 = this->taperedSection->GetSectionB()->GetAxialRigidity();
-    double EIyy2 = this->taperedSection->GetSectionB()->GetYbendingRigidity();
-    double EIzz2 = this->taperedSection->GetSectionB()->GetZbendingRigidity();
     double EA2 = this->tapered_section->GetSectionB()->GetAxialRigidity();
     double EIyy2 = this->tapered_section->GetSectionB()->GetYbendingRigidity();
     double EIzz2 = this->tapered_section->GetSectionB()->GetZbendingRigidity();
@@ -848,7 +839,6 @@ void ChElementBeamTaperedTimoshenko::SetupInitial(ChSystem* system) {
 
     // Compute local damping matrix:
     ComputeDampingMatrix();
-
 }
 
 void ChElementBeamTaperedTimoshenko::ComputeKRMmatricesGlobal(ChMatrixRef H,
@@ -1183,6 +1173,8 @@ void ChElementBeamTaperedTimoshenko::ComputeInternalForces(ChVectorDynamic<>& Fi
 
         ChMatrixDynamic<> Mabs(12, 12);
         Mabs.setZero();
+        this->ComputeKRMmatricesGlobal(Mabs, false, false,
+                                       true);  // Mabs is the mass matrix in absolute coordinate for this element
 
         ChVectorDynamic<> FiM_abs = Mabs * displ_dtdt;
         Fi -= FiM_abs;
@@ -1241,6 +1233,8 @@ void ChElementBeamTaperedTimoshenko::ComputeGravityForces(ChVectorDynamic<>& Fg,
     // [Maybe one can replace this function with a faster ad-hoc implementation in case of lumped masses.]
     Fg = mM * mG;
 
+    //// TODO for the lumped mass matrix case, the mM * mG product can be unrolled into few multiplications as mM mostly
+    ///zero, and same for mG
 }
 
 void ChElementBeamTaperedTimoshenko::EvaluateSectionDisplacement(const double eta,
@@ -1493,6 +1487,8 @@ void ChElementBeamTaperedTimoshenko::EvaluateSectionForceTorque(const double eta
 
     double eps = 1.0e-3;
     bool use_shear_stain = true;  // As default, use shear strain to evaluate the shear forces
+    if (abs(GAyy) < eps ||
+        abs(GAzz) < eps) {  // Sometimes, the user will not input GAyy, GAzz, so GAyy, GAzz may be zero.
         use_shear_stain = false;
     }
 
@@ -1520,6 +1516,9 @@ void ChElementBeamTaperedTimoshenko::EvaluateSectionForceTorque(const double eta
     sect_ek(1) = (dddN_ua * displ(1) + dddN_ub * displ(7) +   // y_a   y_b
                   dddN_ra * displ(5) + dddN_rb * displ(11));  // Rz_a  Rz_b
     // e_z
+    sect_ek(2) = (-dddN_ua * displ(2) - dddN_ub * displ(8) +  // z_a   z_b   note - sign  TODO: need to check the sign
+                  dddN_ra * displ(4) + dddN_rb * displ(10));  // Ry_a  Ry_b
+    sect_ek(2) *= -1;  // TODO: need to check the sign of curvature, it depends on your definition
 
     // k_x
     sect_ek(3) = (dN_xa * displ(3) + dN_xb * displ(9));  // Rx_a  Rx_b

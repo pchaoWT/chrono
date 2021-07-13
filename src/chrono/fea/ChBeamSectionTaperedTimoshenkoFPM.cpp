@@ -17,6 +17,7 @@
 namespace chrono {
 namespace fea {
 
+
 void ChBeamSectionTaperedTimoshenkoAdvancedGenericFPM::ComputeAverageFPM() {
 
     // the elements off the diagonal are averaged by arithmetic mean

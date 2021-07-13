@@ -21,6 +21,7 @@
 namespace chrono {
 namespace fea {
 
+
 // This damping model would be helpful for those anisotropic material, such as wind turbine blade.
 // Refer to:
 // [1]. Hansen, M. H. (2001). Anisotropic damping of Timoshenko beam elements. (Denmark. Forskningscenter Risoe.
@@ -32,6 +33,7 @@ struct DampingCoefficients {
     double bz;  ///< damping coefficient along z axis (shear) and about y axis (bending)
     double bt;  ///< damping coefficient about x axis (torsion)
 };
+
 
 struct AverageSectionParameters {
     double mu;
@@ -99,7 +101,7 @@ class ChApi ChBeamSectionTimoshenkoAdvancedGeneric : public ChBeamSectionRayleig
     DampingCoefficients rdamping_coeff;
 
   public:
-    ChBeamSectionTimoshenkoAdvancedGeneric() : GAyy(0), GAzz(0), Qy(0), Qz(0) {
+    ChBeamSectionTimoshenkoAdvancedGeneric() : GAyy(0), GAzz(0),Qy(0),Qz(0) {
         double bcoeff = 0.001;
         rdamping_coeff.bx = bcoeff;
         rdamping_coeff.by = bcoeff;
@@ -108,32 +110,30 @@ class ChApi ChBeamSectionTimoshenkoAdvancedGeneric : public ChBeamSectionRayleig
     }
 
     ChBeamSectionTimoshenkoAdvancedGeneric(
-        const double mAx,                          ///< axial rigidity
-        const double mTxx,                         ///< torsion rigidity
-        const double mByy,                         ///< bending regidity about yy
-        const double mBzz,                         ///< bending rigidity about zz
-        const double mGAyy,                        ///< shear rigidity along yy
-        const double mGAzz,                        ///< shear rigidity along zz
+        const double mAx,     ///< axial rigidity
+        const double mTxx,    ///< torsion rigidity
+        const double mByy,    ///< bending regidity about yy
+        const double mBzz,    ///< bending rigidity about zz
+        const double mGAyy,   ///< shear rigidity along yy
+        const double mGAzz,   ///< shear rigidity along zz
         const DampingCoefficients mdamping_coeff,  /// damping coefficients
-        const double malpha,                       ///< section rotation about elastic center [rad]
-        const double mCy,                          ///< elastic center y displacement respect to centerline
-        const double mCz,                          ///< elastic center z displacement respect to centerline
-        const double mSy,                          ///< shear center y displacement respect to centerline
-        const double mSz,                          ///< shear center z displacement respect to centerline
-        const double mmu,                          ///< mass per unit length
+        const double malpha,  ///< section rotation about elastic center [rad]
+        const double mCy,     ///< elastic center y displacement respect to centerline
+        const double mCz,     ///< elastic center z displacement respect to centerline
+        const double mSy,     ///< shear center y displacement respect to centerline
+        const double mSz,     ///< shear center z displacement respect to centerline
+        const double mmu,     ///< mass per unit length
         const double
             mJyy,  ///< inertia Jyy per unit lenght, in centerline reference, measured along centerline main axes
         const double
             mJzz,  ///< inertia Jzz per unit lenght, in centerline reference, measured along centerline main axes
         const double mJyz =
             0,  ///< inertia Jyz per unit lenght, in centerline reference, measured along centerline main axes const
-        const double mQy =
-            0,  ///< inertia Qy per unit lenght, in centerline reference, measured along centerline main axes
-        const double mQz =
-            0,  ///< inertia Qz per unit lenght, in centerline reference, measured along centerline main axes
+        const double mQy = 0,  ///< inertia Qy per unit lenght, in centerline reference, measured along centerline main axes
+        const double mQz = 0,  ///< inertia Qz per unit lenght, in centerline reference, measured along centerline main axes
         const double mMy = 0,  ///< mass center y displacement respect to centerline
-        const double mMz = 0   ///< mass center z displacement respect to centerline
-        )
+        const double mMz = 0  ///< mass center z displacement respect to centerline
+        )  
         : ChBeamSectionRayleighAdvancedGeneric(mAx,
                                                mTxx,
                                                mByy,
@@ -153,7 +153,9 @@ class ChApi ChBeamSectionTimoshenkoAdvancedGeneric : public ChBeamSectionRayleig
           GAzz(mGAzz),
           Qy(mQy),
           Qz(mQz),
-          rdamping_coeff(mdamping_coeff) {}
+          rdamping_coeff(mdamping_coeff) {
+
+    }
 
     virtual ~ChBeamSectionTimoshenkoAdvancedGeneric() {}
 
@@ -176,6 +178,7 @@ class ChApi ChBeamSectionTimoshenkoAdvancedGeneric : public ChBeamSectionRayleig
     virtual void SetBeamRaleyghDamping(DampingCoefficients mdamping_coeff) { this->rdamping_coeff = mdamping_coeff; }
     virtual DampingCoefficients GetBeamRaleyghDamping() const { return this->rdamping_coeff; }
 
+
     virtual void SetInertiasPerUnitLength(const double mJyy,
                                           const double mJzz,
                                           const double mJyz,
@@ -189,18 +192,18 @@ class ChApi ChBeamSectionTimoshenkoAdvancedGeneric : public ChBeamSectionRayleig
                                                 const double Qmy,
                                                 const double Qmz);
 
-    virtual void GetMainInertiasInMassReference(double& Jmyy,
-                                                double& Jmzz,
-                                                double& Jmyz,
-                                                double& mass_phi,
-                                                double& Qmy,
-                                                double& Qmz);
+    virtual void GetMainInertiasInMassReference( double& Jmyy,
+                                                 double& Jmzz,
+                                                 double& Jmyz,
+                                                 double& mass_phi,
+                                                 double& Qmy,
+                                                 double& Qmz);
 
     virtual double GetInertiaJxxPerUnitLengthInMassReference() const {
         // WARNING: It is recommended to  use GetMainInertiasInMassReference() instead.
         // because the below algorithm has ingored Qmy,Qmz, although they are always tiny values.
         GetLog() << "Warm warning: it is recommended to use GetMainInertiasInMassReference() instead, "
-                 << "and do calculation: Jmxx = Jmyy+Jmzz \n";
+                  << "and do calculation: Jmxx = Jmyy+Jmzz \n";
         return this->Jxx - this->mu * this->Mz * this->Mz - this->mu * this->My * this->My;
     };
 

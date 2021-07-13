@@ -47,13 +47,15 @@ class ChApi ChElementBeamTaperedTimoshenko : public ChElementBeam,
 
     using ShapeFunctionN = ChMatrixNM<double, 6, 12>;
     using SFBlock = ChMatrixNM<double, 1, 4>;
-    using ShapeFunction5Blocks = std::tuple<SFBlock,SFBlock,SFBlock,SFBlock,ChMatrixNM<double, 1, 2>>;
-    using ShapeFunction2Blocks = std::tuple<SFBlock,SFBlock>;
-    using ShapeFunctionGroup = std::tuple<ShapeFunctionN,  //  restore shape function
-        ShapeFunction5Blocks, // restore blocks of shape function
-        ShapeFunction5Blocks, // restore blocks of first derivatives
-        ShapeFunction2Blocks, // restore blocks of second derivatives
-        ShapeFunction2Blocks>; // restore blocks of thrid derivatives
+    using ShapeFunction5Blocks = std::tuple<SFBlock, SFBlock, SFBlock, SFBlock, ChMatrixNM<double, 1, 2>>;
+    using ShapeFunction2Blocks = std::tuple<SFBlock, SFBlock>;
+    using ShapeFunctionGroup = std::tuple<ShapeFunctionN,         // restore shape function
+                                          ShapeFunction5Blocks,   // restore blocks of shape function
+                                          ShapeFunction5Blocks,   // restore blocks of first derivatives
+                                          ShapeFunction2Blocks,   // restore blocks of second derivatives
+                                          ShapeFunction2Blocks>;  // restore blocks of thrid derivatives
+
+  public:
 
   public:
 
@@ -119,7 +121,6 @@ class ChApi ChElementBeamTaperedTimoshenko : public ChElementBeam,
 
     void SetUseRc(bool md) { this->use_Rc = md; }
     void SetUseRs(bool md) { this->use_Rs = md; }
-
 
     /// Fills the N matrix (compressed! single row, 12 columns) with the
     /// values of shape functions at abscissa 'eta'.
@@ -333,6 +334,15 @@ class ChApi ChElementBeamTaperedTimoshenko : public ChElementBeam,
     bool use_geometric_stiffness;
     bool use_Rc;
     bool use_Rs;
+     
+    /// Flag that turns on/off the computation of the [Ri] 'gyroscopic' inertial damping matrix.
+    /// If false, Ri=0. Can be used for cpu speedup, profiling, tests. Default: true.
+    //bool compute_inertia_damping_matrix = true;
+
+    /// Flag that turns on/off the computation of the [Ki] inertial stiffness matrix.
+    /// If false, Ki=0. Can be used for cpu speedup, profiling, tests. Default: true.
+    //bool compute_inertia_stiffness_matrix = true;
+
 
     ChMatrixDynamic<> T; ///< transformation matrix for two nodes, from centerline to elastic axis
     ChMatrixDynamic<> Rc;
