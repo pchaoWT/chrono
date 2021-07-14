@@ -20,28 +20,28 @@ namespace chrono {
 namespace fea {
 ChElementBeamTaperedTimoshenkoFPM::ChElementBeamTaperedTimoshenkoFPM(): 
     guass_order(4){
-    //q_refrotA = QUNIT;
-    //q_refrotB = QUNIT;
-    //q_element_abs_rot = QUNIT;
-    //q_element_ref_rot = QUNIT;
-    //force_symmetric_stiffness = false;
-    //disable_corotate = false;
-    //use_geometric_stiffness = true;
-    //use_Rc = true;
-    //use_Rs = true;
+    q_refrotA = QUNIT;
+    q_refrotB = QUNIT;
+    q_element_abs_rot = QUNIT;
+    q_element_ref_rot = QUNIT;
+    force_symmetric_stiffness = false;
+    disable_corotate = false;
+    use_geometric_stiffness = true;
+    use_Rc = true;
+    use_Rs = true;
 
-    //nodes.resize(2);
+    nodes.resize(2);
 
-    //Km.setZero(this->GetNdofs(), this->GetNdofs());
-    //Kg.setZero(this->GetNdofs(), this->GetNdofs());
-    //M.setZero(this->GetNdofs(), this->GetNdofs());
-    //Rm.setZero(this->GetNdofs(), this->GetNdofs());
-    //Ri.setZero(this->GetNdofs(), this->GetNdofs());
-    //Ki.setZero(this->GetNdofs(), this->GetNdofs());
+    Km.setZero(this->GetNdofs(), this->GetNdofs());
+    Kg.setZero(this->GetNdofs(), this->GetNdofs());
+    M.setZero(this->GetNdofs(), this->GetNdofs());
+    Rm.setZero(this->GetNdofs(), this->GetNdofs());
+    Ri.setZero(this->GetNdofs(), this->GetNdofs());
+    Ki.setZero(this->GetNdofs(), this->GetNdofs());
 
-    //T.setZero(this->GetNdofs(), this->GetNdofs());
-    //Rs.setIdentity(6, 6);
-    //Rc.setIdentity(6, 6);
+    T.setZero(this->GetNdofs(), this->GetNdofs());
+    Rs.setIdentity(6, 6);
+    Rc.setIdentity(6, 6);
 }
 
 void ChElementBeamTaperedTimoshenkoFPM::ShapeFunctionsTimoshenkoFPM(ShapeFunctionGroupFPM& NB, double eta) {
@@ -163,277 +163,6 @@ void ChElementBeamTaperedTimoshenkoFPM::ShapeFunctionsTimoshenkoFPM(ShapeFunctio
 
     // return result
     NB = std::make_tuple(Nx, Bx);
-}
-
-
-void ChElementBeamTaperedTimoshenkoFPM::ComputeStiffnessMatrix0() {
-    assert(tapered_section_fpm);
-
-    double L = this->length;
-    double LL = L * L;
-    double LLL = LL * L;
-
-    ChMatrixNM<double,6,6> Klaw = this->tapered_section_fpm->GetAverageFPM();
-    double EA = this->tapered_section_fpm->GetAverageSectionParameters()->EA;
-    double GJ = this->tapered_section_fpm->GetAverageSectionParameters()->GJ;
-    double GAyy = this->tapered_section_fpm->GetAverageSectionParameters()->GAyy;
-    double GAzz = this->tapered_section_fpm->GetAverageSectionParameters()->GAzz;
-    double EIyy = this->tapered_section_fpm->GetAverageSectionParameters()->EIyy;
-    double EIzz = this->tapered_section_fpm->GetAverageSectionParameters()->EIzz;
-
-    double phiy = this->tapered_section_fpm->GetAverageSectionParameters()->phiy;
-    double phiz = this->tapered_section_fpm->GetAverageSectionParameters()->phiz;
-
-    double ay = 1. / (1. + phiy);
-    double by = phiy * ay;
-    double az = 1. / (1. + phiz);
-    double bz = phiz * az;
-
-    double k12 = Klaw(0, 1);
-    double k13 = Klaw(0, 2);
-    double k14 = Klaw(0, 3);
-    double k15 = Klaw(0, 4);
-    double k16 = Klaw(0, 5);
-    double k23 = Klaw(1, 2);
-    double k24 = Klaw(1, 3);
-    double k25 = Klaw(1, 4);
-    double k26 = Klaw(1, 5);
-    double k34 = Klaw(2, 3);
-    double k35 = Klaw(2, 4);
-    double k36 = Klaw(2, 5);
-    double k45 = Klaw(3, 4);
-    double k46 = Klaw(3, 5);
-    double k56 = Klaw(4, 5);
-    
-
-    //TODO: need to check whether this stiffness matrix has shear locking issue!
-    Km(0, 0) = EA / L;
-    Km(0, 1) = by * k12 / L;
-    Km(0, 2) = bz * k13 / L;
-    Km(0, 3) = k14 / L;
-    Km(0, 4) = -bz * k13 / 2. + k15 / L;
-    Km(0, 5) = by * k12 / 2. + k16 / L;
-    Km(0, 6) = -EA / L;
-    Km(0, 7) = -by * k12 / L;
-    Km(0, 8) = -bz * k13 / L;
-    Km(0, 9) = -k14 / L;
-    Km(0, 10) = -bz * k13 / 2. - k15 / L;
-    Km(0, 11) = by * k12 / 2. - k16 / L;
-    Km(1, 1) = 12. * EIzz * ay / LLL;
-    Km(1, 2) = (by * bz * k23 * LL - 12. * ay * az * k56) / LLL;
-    Km(1, 3) = by * k24 / L;
-    Km(1, 4) = (L * by * k25 + 6. * ay * az * k56) / LL - (by * bz * k23) / 2.;
-    Km(1, 5) = 6. * EIzz * ay / LL + k26 * by / L;
-    Km(1, 6) = -by * k12 / L;
-    Km(1, 7) = -12. * EIzz * ay / LLL;
-    Km(1, 8) = -Km(1, 2);
-    Km(1, 9) = -by * k24 / L;
-    Km(1, 10) = (-L * by * k25 + 6. * ay * az * k56) / LL - (by * bz * k23) / 2.;
-    Km(1, 11) = 6. * EIzz * ay / LL - k26 * by / L;
-    Km(2, 2) = 12. * EIyy * az / LLL;
-    Km(2, 3) = bz * k34 / L;
-    Km(2, 4) = k35 * bz / L - 6. * EIyy * az / LL;
-    Km(2, 5) = (L * bz * k36 - 6. * ay * az * k56) / LL + (by * bz * k23) / 2.;
-    Km(2, 6) = -bz * k13 / L;
-    Km(2, 7) = (-by * bz * k23 * LL + 12. * ay * az * k56) / LLL;
-    Km(2, 8) = -12. * EIyy * az / LLL;
-    Km(2, 9) = -bz * k34 / L;
-    Km(2, 10) = -6. * EIyy * az / LL - k35 * bz / L;
-    Km(2, 11) = -(L * bz * k36 + 6. * ay * az * k56) / LL + (by * bz * k23) / 2.;
-    Km(3, 3) = GJ / L;
-    Km(3, 4) = k45 / L - bz * k34 / 2.;
-    Km(3, 5) = k46 / L + by * k24 / 2.;
-    Km(3, 6) = -k14 / L;
-    Km(3, 7) = -by * k24 / L;
-    Km(3, 8) = -bz * k34 / L;
-    Km(3, 9) = -GJ / L;
-    Km(3, 10) = -k45 / L - bz * k34 / 2.;
-    Km(3, 11) = -k46 / L + by * k24 / 2.;
-    Km(4, 4) = EIyy * (4. + phiz) * az / L - bz * k35;
-    Km(4, 5) = -L * by * bz * k23 / 4. + by * k25 / 2. - bz * k36 / 2. + (3. * ay * az + 1.) * k56 / L;
-    Km(4, 6) = bz * k13 / 2. - k15 / L;
-    Km(4, 7) = by * bz * k23 / 2. - (L * by * k25 + 6. * ay * az * k56) / LL;
-    Km(4, 8) = 6. * EIyy * az / LL - k35 * bz / L;
-    Km(4, 9) = bz * k34 / 2. - k45 / L;
-    Km(4, 10) = EIyy * (2. - phiz) * az / L;
-    Km(4, 11) = -L * by * bz * k23 / 4. + by * k25 / 2. + bz * k36 / 2. + (3. * ay * az - 1.) * k56 / L;
-    Km(5, 5) = EIzz * (4. + phiy) * ay / L + by * k26;
-    Km(5, 6) = -by * k12 / 2. - k16 / L;
-    Km(5, 7) = -6. * EIzz * ay / LL - k26 * by / L;
-    Km(5, 8) = -(L * bz * k36 - 6. * ay * az * k56) / LL - by * bz * k23 / 2.;
-    Km(5, 9) = -by * k24 / 2. - k46 / L;
-    Km(5, 10) = (3. * ay * az - 1.) * k56 / L - by * k25 / 2. - bz * k36 / 2. - L * bz * by * k23 / 4.;
-    Km(5, 11) = EIzz * (2. - phiy) * ay / L;
-    Km(6, 6) = EA / L;
-    Km(6, 7) = by * k12 / L;
-    Km(6, 8) = bz * k13 / L;
-    Km(6, 9) = k14 / L;
-    Km(6, 10) = bz * k13 / 2. + k15 / L;
-    Km(6, 11) = k16 / L - by * k12 / 2.;
-    Km(7, 7) = 12. * EIzz * ay / LLL;
-    Km(7, 8) = (by * bz * k23 * LL - 12. * ay * az * k56) / LLL;
-    Km(7, 9) = by * k24 / L;
-    Km(7, 10) = (L * by * k25 - 6. * ay * az * k56) / LL + (by * bz * k23) / 2.;
-    Km(7, 11) = -6. * EIzz * ay / LL + k26 * by / L;
-    Km(8, 8) = 12. * EIyy * az / LLL;
-    Km(8, 9) = bz * k34 / L;
-    Km(8, 10) = 6. * EIyy * az / LL + k35 * bz / L;
-    Km(8, 11) = (L * bz * k36 + 6. * ay * az * k56) / LL - (by * bz * k23) / 2.;
-    Km(9, 9) = GJ / L;
-    Km(9, 10) = bz * k34 / 2. + k45 / L;
-    Km(9, 11) = k46 / L - by * k24 / 2.;
-    Km(10, 10) = bz * k35 + EIyy * (4. + phiz) * az / L;
-    Km(10, 11) = bz * k36 / 2. - by * k25 / 2. - L * by * bz * k23 / 4. + (3. * ay * az + 1.) * k56 / L;
-    Km(11, 11) = EIzz * (4. + phiy) * ay / L - by * k26;
-
-    // symmetric part;
-    for (int r = 0; r < 12; r++)
-        for (int c = 0; c < r; c++)
-            Km(r, c) = Km(c, r);
-
-    Km = this->T.transpose() * Km * this->T;
-}
-
-void ChElementBeamTaperedTimoshenkoFPM::ComputeDampingMatrix0() {
-    assert(tapered_section_fpm);
-
-    double L = this->length;
-    double LL = L * L;
-    double LLL = LL * L;
-
-    double mbx = this->tapered_section_fpm->GetAverageSectionParameters()->rdamping_coeff.bx;
-    double mby = this->tapered_section_fpm->GetAverageSectionParameters()->rdamping_coeff.by;
-    double mbz = this->tapered_section_fpm->GetAverageSectionParameters()->rdamping_coeff.bz;
-    double mbt = this->tapered_section_fpm->GetAverageSectionParameters()->rdamping_coeff.bt;
-    ChMatrixNM<double, 6, 6> mb;
-    mb.setIdentity();
-    mb(0, 0) = mbx;
-    mb(1, 1) = mby;
-    mb(2, 2) = mbz;
-    mb(3, 3) = mbt;
-    mb(4, 4) = mbz;
-    mb(5, 5) = mby;
-
-    ChMatrixNM<double, 6, 6> Klaw = this->tapered_section_fpm->GetAverageFPM();
-    ChMatrixNM<double, 6, 6> Rlaw = mb.transpose() * Klaw * mb;  // material damping matrix
-
-    double rEA = Rlaw(0,0);
-    double rGAyy = Rlaw(1, 1);
-    double rGAzz = Rlaw(2, 2);
-    double rGJ = Rlaw(3, 3);
-    double rEIyy = Rlaw(4, 4);
-    double rEIzz = Rlaw(5, 5);
-
-    double phiy = this->tapered_section_fpm->GetAverageSectionParameters()->phiy;
-    double phiz = this->tapered_section_fpm->GetAverageSectionParameters()->phiz;
-
-    double ay = 1. / (1. + phiy);
-    double by = phiy * ay;
-    double az = 1. / (1. + phiz);
-    double bz = phiz * az;
-
-
-    double k12 = Rlaw(0, 1);
-    double k13 = Rlaw(0, 2);
-    double k14 = Rlaw(0, 3);
-    double k15 = Rlaw(0, 4);
-    double k16 = Rlaw(0, 5);
-    double k23 = Rlaw(1, 2);
-    double k24 = Rlaw(1, 3);
-    double k25 = Rlaw(1, 4);
-    double k26 = Rlaw(1, 5);
-    double k34 = Rlaw(2, 3);
-    double k35 = Rlaw(2, 4);
-    double k36 = Rlaw(2, 5);
-    double k45 = Rlaw(3, 4);
-    double k46 = Rlaw(3, 5);
-    double k56 = Rlaw(4, 5);
-
-    Rm(0, 0) = rEA / L;
-    Rm(0, 1) = by * k12 / L;
-    Rm(0, 2) = bz * k13 / L;
-    Rm(0, 3) = k14 / L;
-    Rm(0, 4) = -bz * k13 / 2. + k15 / L;
-    Rm(0, 5) = by * k12 / 2. + k16 / L;
-    Rm(0, 6) = -rEA / L;
-    Rm(0, 7) = -by * k12 / L;
-    Rm(0, 8) = -bz * k13 / L;
-    Rm(0, 9) = -k14 / L;
-    Rm(0, 10) = -bz * k13 / 2. - k15 / L;
-    Rm(0, 11) = by * k12 / 2. - k16 / L;
-    Rm(1, 1) = 12. * rEIzz * ay / LLL;
-    Rm(1, 2) = (by * bz * k23 * LL - 12. * ay * az * k56) / LLL;
-    Rm(1, 3) = by * k24 / L;
-    Rm(1, 4) = (L * by * k25 + 6. * ay * az * k56) / LL - (by * bz * k23) / 2.;
-    Rm(1, 5) = 6. * rEIzz * ay / LL + k26 * by / L;
-    Rm(1, 6) = -by * k12 / L;
-    Rm(1, 7) = -12. * rEIzz * ay / LLL;
-    Rm(1, 8) = -Rm(1, 2);
-    Rm(1, 9) = -by * k24 / L;
-    Rm(1, 10) = (-L * by * k25 + 6. * ay * az * k56) / LL - (by * bz * k23) / 2.;
-    Rm(1, 11) = 6. * rEIzz * ay / LL - k26 * by / L;
-    Rm(2, 2) = 12. * rEIyy * az / LLL;
-    Rm(2, 3) = bz * k34 / L;
-    Rm(2, 4) = k35 * bz / L - 6. * rEIyy * az / LL;
-    Rm(2, 5) = (L * bz * k36 - 6. * ay * az * k56) / LL + (by * bz * k23) / 2.;
-    Rm(2, 6) = -bz * k13 / L;
-    Rm(2, 7) = (-by * bz * k23 * LL + 12. * ay * az * k56) / LLL;
-    Rm(2, 8) = -12. * rEIyy * az / LLL;
-    Rm(2, 9) = -bz * k34 / L;
-    Rm(2, 10) = -6. * rEIyy * az / LL - k35 * bz / L;
-    Rm(2, 11) = -(L * bz * k36 + 6. * ay * az * k56) / LL + (by * bz * k23) / 2.;
-    Rm(3, 3) = rGJ / L;
-    Rm(3, 4) = k45 / L - bz * k34 / 2.;
-    Rm(3, 5) = k46 / L + by * k24 / 2.;
-    Rm(3, 6) = -k14 / L;
-    Rm(3, 7) = -by * k24 / L;
-    Rm(3, 8) = -bz * k34 / L;
-    Rm(3, 9) = -rGJ / L;
-    Rm(3, 10) = -k45 / L - bz * k34 / 2.;
-    Rm(3, 11) = -k46 / L + by * k24 / 2.;
-    Rm(4, 4) = rEIyy * (4. + phiz) * az / L - bz * k35;
-    Rm(4, 5) = -L * by * bz * k23 / 4. + by * k25 / 2. - bz * k36 / 2. + (3. * ay * az + 1.) * k56 / L;
-    Rm(4, 6) = bz * k13 / 2. - k15 / L;
-    Rm(4, 7) = by * bz * k23 / 2. - (L * by * k25 + 6. * ay * az * k56) / LL;
-    Rm(4, 8) = 6. * rEIyy * az / LL - k35 * bz / L;
-    Rm(4, 9) = bz * k34 / 2. - k45 / L;
-    Rm(4, 10) = rEIyy * (2. - phiz) * az / L;
-    Rm(4, 11) = -L * by * bz * k23 / 4. + by * k25 / 2. + bz * k36 / 2. + (3. * ay * az - 1.) * k56 / L;
-    Rm(5, 5) = rEIzz * (4. + phiy) * ay / L + by * k26;
-    Rm(5, 6) = -by * k12 / 2. - k16 / L;
-    Rm(5, 7) = -6. * rEIzz * ay / LL - k26 * by / L;
-    Rm(5, 8) = -(L * bz * k36 - 6. * ay * az * k56) / LL - by * bz * k23 / 2.;
-    Rm(5, 9) = -by * k24 / 2. - k46 / L;
-    Rm(5, 10) = (3. * ay * az - 1.) * k56 / L - by * k25 / 2. - bz * k36 / 2. - L * bz * by * k23 / 4.;
-    Rm(5, 11) = rEIzz * (2. - phiy) * ay / L;
-    Rm(6, 6) = rEA / L;
-    Rm(6, 7) = by * k12 / L;
-    Rm(6, 8) = bz * k13 / L;
-    Rm(6, 9) = k14 / L;
-    Rm(6, 10) = bz * k13 / 2. + k15 / L;
-    Rm(6, 11) = k16 / L - by * k12 / 2.;
-    Rm(7, 7) = 12. * rEIzz * ay / LLL;
-    Rm(7, 8) = (by * bz * k23 * LL - 12. * ay * az * k56) / LLL;
-    Rm(7, 9) = by * k24 / L;
-    Rm(7, 10) = (L * by * k25 - 6. * ay * az * k56) / LL + (by * bz * k23) / 2.;
-    Rm(7, 11) = -6. * rEIzz * ay / LL + k26 * by / L;
-    Rm(8, 8) = 12. * rEIyy * az / LLL;
-    Rm(8, 9) = bz * k34 / L;
-    Rm(8, 10) = 6. * rEIyy * az / LL + k35 * bz / L;
-    Rm(8, 11) = (L * bz * k36 + 6. * ay * az * k56) / LL - (by * bz * k23) / 2.;
-    Rm(9, 9) = rGJ / L;
-    Rm(9, 10) = bz * k34 / 2. + k45 / L;
-    Rm(9, 11) = k46 / L - by * k24 / 2.;
-    Rm(10, 10) = bz * k35 + rEIyy * (4. + phiz) * az / L;
-    Rm(10, 11) = bz * k36 / 2. - by * k25 / 2. - L * by * bz * k23 / 4. + (3. * ay * az + 1.) * k56 / L;
-    Rm(11, 11) = rEIzz * (4. + phiy) * ay / L - by * k26;
-
-    // symmetric part;
-    for (int r = 0; r < 12; r++)
-        for (int c = 0; c < r; c++)
-            Rm(r, c) = Rm(c, r);
-
-    Rm = this->T.transpose() * Rm * this->T;
 }
 
 /// This class defines the calculations for the integrand of 
@@ -682,21 +411,6 @@ void ChElementBeamTaperedTimoshenkoFPM::ComputeNF(const double U,
     // ---> detJ = dx/Deta = L/2.;
     detJ = this->GetRestLength() / 2.0;
 
-    /* old code for Euler beam
-    Qi(0) = N(0) * F(0);  // Nx1 * Fx
-    Qi(1) = N(1) * F(1) + N(6) * F(5);  // Ny1 * Fy + dN_ua * Mz
-    Qi(2) = N(1) * F(2) - N(6) * F(4);  // Ny1 * Fz - dN_ua * My
-    Qi(3) = N(0) * F(3);                // Nx1 * Mx
-    Qi(4) = -N(2) * F(2) + N(8) * F(4);  // - Nr1 * Fz + dN_ra * My
-    Qi(5) = N(2) * F(1) + N(8) * F(5);   // Nr1 * Fy +  dN_ra * Mz
-
-    Qi(6) = N(3) * F(0);  // Nx2 * Fx
-    Qi(7) = N(4) * F(1) + N(7) * F(5);  // Ny2 * Fy + dN_ub * Mz
-    Qi(8) = N(4) * F(2) - N(7) * F(4);  // Ny2 * Fz - dN_ub * My
-    Qi(9) = N(3) * F(3);                // Nx2 * Mx
-    Qi(10) = -N(5) * F(2) + N(9) * F(4);  // - Nr2 * Fz + dN_rb * My
-    Qi(11) = N(5) * F(1) + N(9) * F(5);   // Nr2 * Fy + dN_rb * Mz
-    */
 }
 
 void ChElementBeamTaperedTimoshenkoFPM::ComputeNF(const double U,

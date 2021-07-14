@@ -33,7 +33,7 @@ protected:
 	// material stiffness matrix of cross-section, 
 	// given at elastic center and elastic principal axis orientation,
 	// the shear principal axis orientation is assumed same as elastic one.
-	ChMatrixNM<double, 6, 6> Klaw;
+    ChMatrixNM<double, 6, 6> Klaw;
 
 	ChMatrixNM<double, 6, 6> Mlaw;
 
@@ -122,6 +122,7 @@ protected:
 		this->SetMainInertiasInMassReference(Jmyy,Jmzz,Jmyz,mass_phi,Qmy,Qmz);
 		
 		// fill the cross-sectional mass matrix Mlaw
+        this->Mlaw.setIdentity();
         this->Mlaw.row(0) << mu, 0, 0, 0, Qy, -Qz;
         this->Mlaw.row(1) << 0, mu, 0, -Qy, 0, 0;
         this->Mlaw.row(2) << 0, 0, mu, Qz, 0, 0;
@@ -141,6 +142,7 @@ protected:
         this->Qz = mQz;
 
         // fill the cross-sectional mass matrix Mlaw
+        this->Mlaw.setIdentity();
         this->Mlaw.row(0) << mu, 0, 0, 0, Qy, -Qz;
         this->Mlaw.row(1) << 0, mu, 0, -Qy, 0, 0;
         this->Mlaw.row(2) << 0, 0, mu, Qz, 0, 0;
@@ -194,7 +196,7 @@ protected:
 	std::shared_ptr<ChBeamSectionTimoshenkoAdvancedGenericFPM> section_fpmB;
 
 	// Some important average section parameters, to calculate once, enable to access them conveniently.
-	ChMatrixNM<double, 6, 6> average_fpm;
+    ChMatrixNM<double, 6, 6> average_fpm;
 
 	virtual void ComputeAverageFPM();
 

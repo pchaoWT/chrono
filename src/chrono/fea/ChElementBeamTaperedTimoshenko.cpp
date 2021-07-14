@@ -56,43 +56,6 @@ void ChElementBeamTaperedTimoshenko::SetNodes(std::shared_ptr<ChNodeFEAxyzrot> n
     Kmatr.SetVariables(mvars);
 }
 
-void ChElementBeamTaperedTimoshenko::ShapeFunctionsEuler(ShapeVector& N, double eta) {
-    double Nx1 = (1. / 2.) * (1 - eta);
-    double Nx2 = (1. / 2.) * (1 + eta);
-    double Ny1 = (1. / 4.) * pow((1 - eta), 2) * (2 + eta);
-    double Ny2 = (1. / 4.) * pow((1 + eta), 2) * (2 - eta);
-    double Nr1 = (this->length / 8.) * pow((1 - eta), 2) * (1 + eta);
-    double Nr2 = (this->length / 8.) * pow((1 + eta), 2) * (eta - 1);
-    /*
-    N(0) = Nx1;
-    N(1) = Ny1;
-    N(2) = Ny1;
-    N(3) = Nx1;
-    N(4) = -Nr1;
-    N(5) = Nr1;
-    N(6) = Nx2;
-    N(7) = Ny2;
-    N(8) = Ny2;
-    N(9) = Nx2;
-    N(10) = -Nr2;
-    N(11) = Nr2;
-    */
-    double dN_ua = (1. / (2. * this->length)) * (-3. + 3 * eta * eta);
-    double dN_ub = (1. / (2. * this->length)) * (3. - 3 * eta * eta);
-    double dN_ra = (1. / 4.) * (-1. - 2 * eta + 3 * eta * eta);
-    double dN_rb = -(1. / 4.) * (1. - 2 * eta - 3 * eta * eta);
-    N(0) = Nx1;
-    N(1) = Ny1;
-    N(2) = Nr1;
-    N(3) = Nx2;
-    N(4) = Ny2;
-    N(5) = Nr2;
-    N(6) = dN_ua;
-    N(7) = dN_ub;
-    N(8) = dN_ra;
-    N(9) = dN_rb;
-}
-
 void ChElementBeamTaperedTimoshenko::ShapeFunctionsTimoshenko(ShapeFunctionGroup& NN, double eta) {
     // eta = 2 * x/L;
     // x = (-L/2, L/2),  hence eta = (-1, 1)
@@ -501,7 +464,7 @@ void ChElementBeamTaperedTimoshenko::ComputeTransformMatrixAtPoint(ChMatrixDynam
     double Sy2 = this->tapered_section->GetSectionB()->GetShearCenterY();
     double Sz2 = this->tapered_section->GetSectionB()->GetShearCenterZ();
 
-    double L = this->length;
+    //double L = this->length;
 
     // The shear center offset is respect to the centerline of beam element.
     /*Sy1 = Sy1 - Cy1;  // Unnecessary to do this substraction
@@ -557,8 +520,8 @@ void ChElementBeamTaperedTimoshenko::ComputeStiffnessMatrix() {
 
     double EA = this->tapered_section->GetAverageSectionParameters()->EA;
     double GJ = this->tapered_section->GetAverageSectionParameters()->GJ;
-    double GAyy = this->tapered_section->GetAverageSectionParameters()->GAyy;
-    double GAzz = this->tapered_section->GetAverageSectionParameters()->GAzz;
+    //double GAyy = this->tapered_section->GetAverageSectionParameters()->GAyy;
+    //double GAzz = this->tapered_section->GetAverageSectionParameters()->GAzz;
     double EIyy = this->tapered_section->GetAverageSectionParameters()->EIyy;
     double EIzz = this->tapered_section->GetAverageSectionParameters()->EIzz;
 
@@ -621,8 +584,8 @@ void ChElementBeamTaperedTimoshenko::ComputeDampingMatrix() {
 
     double EA = this->tapered_section->GetAverageSectionParameters()->EA;
     double GJ = this->tapered_section->GetAverageSectionParameters()->GJ;
-    double GAyy = this->tapered_section->GetAverageSectionParameters()->GAyy;
-    double GAzz = this->tapered_section->GetAverageSectionParameters()->GAzz;
+    //double GAyy = this->tapered_section->GetAverageSectionParameters()->GAyy;
+    //double GAzz = this->tapered_section->GetAverageSectionParameters()->GAzz;
     double EIyy = this->tapered_section->GetAverageSectionParameters()->EIyy;
     double EIzz = this->tapered_section->GetAverageSectionParameters()->EIzz;
 
@@ -721,7 +684,7 @@ void ChElementBeamTaperedTimoshenko::ComputeGeometricStiffnessMatrix() {
     // double L = this->tapered_section->GetLength();
     double L = this->length;
 
-    double P_L = 1. / L;
+    //double P_L = 1. / L;
     double P6_5L_y = 6. / (5. * L);    // optional [2]: ...+ 12*IzA /(L*L*L);
     double P6_5L_z = 6. / (5. * L);    // optional [2]: ...+ 12*IyA /(L*L*L);
     double P_10_y = 1. / (10.);        // optional [2]: ...+ 6*IzA /(L*L);
@@ -1077,7 +1040,7 @@ void ChElementBeamTaperedTimoshenko::ComputeInternalForces(ChVectorDynamic<>& Fi
     ChVector<> mFcent_i;
     ChVector<> mTgyro_i;
     for (int i = 0; i < nodes.size(); ++i) {
-        int stride = i * 6;
+        //int stride = i * 6;
         if (i == 0) {
             this->tapered_section->GetSectionA()->ComputeQuadraticTerms(mFcent_i, mTgyro_i, nodes[i]->GetWvel_loc());
         } else {  // i==1
@@ -1188,7 +1151,7 @@ void ChElementBeamTaperedTimoshenko::ComputeInternalForces(ChVectorDynamic<>& Fi
         ChVector<> mFcent_i;
         ChVector<> mTgyro_i;
         for (int i = 0; i < nodes.size(); ++i) {
-            int stride = i * 6;
+            //int stride = i * 6;
             if (i == 0) {
                 this->tapered_section->GetSectionA()->ComputeQuadraticTerms(mFcent_i, mTgyro_i, nodes[i]->GetWvel_loc());
             } else {  // i==1
@@ -1311,141 +1274,6 @@ void ChElementBeamTaperedTimoshenko::EvaluateSectionFrame(const double eta, ChVe
     rot = this->q_element_abs_rot % msectionrot;
 }
 
-void ChElementBeamTaperedTimoshenko::EvaluateSectionForceTorque0(const double eta,
-                                                                 ChVector<>& Fforce,
-                                                                 ChVector<>& Mtorque) {
-    // This functionality is the old function for Euler beam, just for test. It can be removed now.
-    assert(tapered_section);
-
-    double EA = this->tapered_section->GetAverageSectionParameters()->EA;
-    double GJ = this->tapered_section->GetAverageSectionParameters()->GJ;
-    double GAyy = this->tapered_section->GetAverageSectionParameters()->GAyy;
-    double GAzz = this->tapered_section->GetAverageSectionParameters()->GAzz;
-    double EIyy = this->tapered_section->GetAverageSectionParameters()->EIyy;
-    double EIzz = this->tapered_section->GetAverageSectionParameters()->EIzz;
-    double alpha = this->tapered_section->GetAverageSectionParameters()->alpha;
-    double Cy = this->tapered_section->GetAverageSectionParameters()->Cy;
-    double Cz = this->tapered_section->GetAverageSectionParameters()->Cz;
-    double Sy = this->tapered_section->GetAverageSectionParameters()->Sy;
-    double Sz = this->tapered_section->GetAverageSectionParameters()->Sz;
-
-    // The shear center offset should be respect to elastic cetner.
-    Sy = Sy - Cy;
-    Sz = Sz - Cz;
-
-    ChMatrix33<> Rotsect0;
-    Rotsect0.Set_A_Rxyz(ChVector<>(alpha, 0, 0));
-    ChMatrixNM<double, 6, 6> RotsectA;
-    RotsectA.setZero();
-    RotsectA.block<3, 3>(0, 0) = Rotsect0;
-    RotsectA.block<3, 3>(3, 3) = Rotsect0;
-    ChMatrixNM<double, 12, 12> Rotsect;
-    Rotsect.setZero();
-    Rotsect.block<3, 3>(0, 0) = Rotsect0;
-    Rotsect.block<3, 3>(3, 3) = Rotsect0;
-    Rotsect.block<3, 3>(6, 6) = Rotsect0;
-    Rotsect.block<3, 3>(9, 9) = Rotsect0;
-
-    ChMatrixNM<double, 6, 6> TcA;
-    TcA.setIdentity();
-    TcA(0, 4) = Cz;
-    TcA(0, 5) = -Cy;
-    TcA(1, 3) = -Cz;
-    TcA(2, 3) = Cy;
-    ChMatrixNM<double, 12, 12> Tc;
-    Tc.setIdentity();
-    Tc.block<6, 6>(0, 0) = TcA;
-    Tc.block<6, 6>(6, 6) = TcA;
-
-    ChMatrixNM<double, 6, 6> TsA;
-    TsA.setIdentity();
-    TsA(1, 3) = -Sz;
-    TsA(2, 3) = Sy;
-    ChMatrixNM<double, 12, 12> Ts;
-    Ts.setIdentity();
-    Ts.block<6, 6>(0, 0) = TsA;
-    Ts.block<6, 6>(6, 6) = TsA;
-
-    ChMatrixNM<double, 6, 6> TA;
-    TA = RotsectA * TsA * TcA;
-    ChMatrixNM<double, 12, 12> T;
-    T = Rotsect * Ts * Tc;
-
-    ChVectorDynamic<> displ(this->GetNdofs());
-    this->GetStateBlock(displ);
-    ChVectorDynamic<> displ_ec = T * displ;
-
-    // ShapeVector N;
-    // ShapeFunctions(N, eta);  // Evaluate compressed shape functions
-
-    // shape function derivatives are computed here on-the-fly
-    double dN_xa = -(1. / length);
-    double dN_xb = (1. / length);
-    double ddN_ua = (6. / (length * length)) * (eta);
-    double ddN_ub = -(6. / (length * length)) * (eta);
-    double ddN_ra = -(1. / length) + ((3.0 / length) * eta);
-    double ddN_rb = (1. / length) + ((3.0 / length) * eta);
-    double dddN_ua = (12. / (length * length * length));
-    double dddN_ub = -(12. / (length * length * length));
-    double dddN_ra = (6.0 / (length * length));
-    double dddN_rb = (6.0 / (length * length));
-
-    // generalized strains/curvatures;
-    ChVectorN<double, 6> sect_ek;
-
-    // e_x
-    sect_ek(0) = (dN_xa * displ_ec(0) + dN_xb * displ_ec(6));  // x_a   x_b
-    // e_y
-    sect_ek(1) = (dddN_ua * displ_ec(1) + dddN_ub * displ_ec(7) +   // y_a   y_b
-                  dddN_ra * displ_ec(5) + dddN_rb * displ_ec(11));  // Rz_a  Rz_b
-    sect_ek(1) *= -1.0;
-    // e_z
-    sect_ek(2) = (-dddN_ua * displ_ec(2) - dddN_ub * displ_ec(8) +  // z_a   z_b   note - sign
-                  dddN_ra * displ_ec(4) + dddN_rb * displ_ec(10));  // Ry_a  Ry_b
-
-    // k_x
-    sect_ek(3) = (dN_xa * displ_ec(3) + dN_xb * displ_ec(9));  // Rx_a  Rx_b
-    // k_y
-    sect_ek(4) = (-ddN_ua * displ_ec(2) - ddN_ub * displ_ec(8) +  // z_a   z_b   note - sign
-                  ddN_ra * displ_ec(4) + ddN_rb * displ_ec(10));  // Ry_a  Ry_b
-    // k_z
-    sect_ek(5) = (ddN_ua * displ_ec(1) + ddN_ub * displ_ec(7) +   // y_a   y_b
-                  ddN_ra * displ_ec(5) + ddN_rb * displ_ec(11));  // Rz_a  Rz_b
-
-    if (false)  // section->alpha ==0 && section->Cy ==0 && section->Cz==0 && section->Sy==0 && section->Sz==0)
-    {
-        // Fast computation:
-        Fforce.x() = EA * sect_ek(0);
-        Fforce.y() = EIzz * sect_ek(1);
-        Fforce.z() = EIyy * sect_ek(2);
-
-        Mtorque.x() = GJ * sect_ek(3);
-        Mtorque.y() = EIyy * sect_ek(4);
-        Mtorque.z() = EIzz * sect_ek(5);
-    } else {
-        // Generic computation, by rotating and translating the constitutive
-        // matrix of the beam:
-        ChMatrixNM<double, 6, 6> Klaw_d;
-        Klaw_d.setZero();
-        Klaw_d(0, 0) = EA;
-        Klaw_d(1, 1) = EIzz;
-        Klaw_d(2, 2) = EIyy;
-        Klaw_d(3, 3) = GJ;
-        Klaw_d(4, 4) = EIyy;
-        Klaw_d(5, 5) = EIzz;
-
-        // ..unrolled rotated constitutive matrix..
-        ChMatrixNM<double, 6, 6> Klaw_r;
-        Klaw_r.setZero();
-        Klaw_r = TA.transpose() * Klaw_d;
-
-        // .. compute wrench = Klaw_l * sect_ek
-        ChVectorN<double, 6> wrench = Klaw_r * sect_ek;
-        Fforce = wrench.segment(0, 3);
-        Mtorque = wrench.segment(3, 3);
-    }
-}
-
 void ChElementBeamTaperedTimoshenko::EvaluateSectionForceTorque(const double eta,
                                                                 ChVector<>& Fforce,
                                                                 ChVector<>& Mtorque) {
@@ -1509,26 +1337,6 @@ void ChElementBeamTaperedTimoshenko::EvaluateSectionForceTorque(const double eta
         sect_ek(2) = -dddkNbz * qez;  // Fz == -EIyy *  dddkNbz * qez == GAzz * dkNsz * qez;
     }
 
-    /*
-    // e_x
-    sect_ek(0) = (dN_xa * displ(0) + dN_xb * displ(6));  // x_a   x_b
-    // e_y
-    sect_ek(1) = (dddN_ua * displ(1) + dddN_ub * displ(7) +   // y_a   y_b
-                  dddN_ra * displ(5) + dddN_rb * displ(11));  // Rz_a  Rz_b
-    // e_z
-    sect_ek(2) = (-dddN_ua * displ(2) - dddN_ub * displ(8) +  // z_a   z_b   note - sign  TODO: need to check the sign
-                  dddN_ra * displ(4) + dddN_rb * displ(10));  // Ry_a  Ry_b
-    sect_ek(2) *= -1;  // TODO: need to check the sign of curvature, it depends on your definition
-
-    // k_x
-    sect_ek(3) = (dN_xa * displ(3) + dN_xb * displ(9));  // Rx_a  Rx_b
-    // k_y
-    sect_ek(4) = (-ddN_ua * displ(2) - ddN_ub * displ(8) +  // z_a   z_b   note - sign
-                  ddN_ra * displ(4) + ddN_rb * displ(10));  // Ry_a  Ry_b
-    // k_z
-    sect_ek(5) = (ddN_ua * displ(1) + ddN_ub * displ(7) +   // y_a   y_b
-                  ddN_ra * displ(5) + ddN_rb * displ(11));  // Rz_a  Rz_b
-    */
 
     if (false)  // section->alpha ==0 && section->Cy ==0 && section->Cz==0 && section->Sy==0 && section->Sz==0)
     {
@@ -1624,21 +1432,6 @@ void ChElementBeamTaperedTimoshenko::ComputeNF(const double U,
 
     Qi = N.transpose() * F;
 
-    /* old code for Euler beam
-    Qi(0) = N(0) * F(0);  // Nx1 * Fx
-    Qi(1) = N(1) * F(1) + N(6) * F(5);  // Ny1 * Fy + dN_ua * Mz
-    Qi(2) = N(1) * F(2) - N(6) * F(4);  // Ny1 * Fz - dN_ua * My
-    Qi(3) = N(0) * F(3);                // Nx1 * Mx
-    Qi(4) = -N(2) * F(2) + N(8) * F(4);  // - Nr1 * Fz + dN_ra * My
-    Qi(5) = N(2) * F(1) + N(8) * F(5);   // Nr1 * Fy +  dN_ra * Mz
-
-    Qi(6) = N(3) * F(0);  // Nx2 * Fx
-    Qi(7) = N(4) * F(1) + N(7) * F(5);  // Ny2 * Fy + dN_ub * Mz
-    Qi(8) = N(4) * F(2) - N(7) * F(4);  // Ny2 * Fz - dN_ub * My
-    Qi(9) = N(3) * F(3);                // Nx2 * Mx
-    Qi(10) = -N(5) * F(2) + N(9) * F(4);  // - Nr2 * Fz + dN_rb * My
-    Qi(11) = N(5) * F(1) + N(9) * F(5);   // Nr2 * Fy + dN_rb * Mz
-    */
 }
 
 void ChElementBeamTaperedTimoshenko::ComputeNF(const double U,

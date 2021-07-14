@@ -75,11 +75,7 @@ public:
     /// constant material are assumed, so the explicit result of quadrature is used.
     /// Also, this local material stiffness matrix is constant, computed only at the beginning
     /// for performance reasons; if you later change some material property, call this or InitialSetup().
-    void ComputeStiffnessMatrix0();  // discarded, it 's wrong
-
-    void ComputeDampingMatrix0();  // discarded, it 's wrong
-    
-    // compute the local element stiffness matrix via Guass Quadrature
+    /// compute the local element stiffness matrix via Guass Quadrature
     void ComputeStiffnessMatrix();
 
     // Although the shape functions of this beam element have updated, 

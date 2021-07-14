@@ -322,10 +322,6 @@ void ChElementBeamEuler::ComputeGeometricStiffnessMatrix() {
     //        https://www.scielo.br/pdf/lajss/v16n4/1679-7825-lajss-16-04-e185.pdf
     // Look also at: https://enercalc.com/3d_help/toc161394033.html or in Plesha, Malkus, Cook �Concepts and Applications of Finite Element Analysis? 
     // or in W. McGuire & R.H. Gallagher & R.D. Ziemian, �Matrix Structural Analysis?
-      
-    double EA = this->section->GetAxialRigidity();
-    double EIyy = this->section->GetYbendingRigidity();
-    double EIzz = this->section->GetZbendingRigidity();
 
     double L = this->length;
 

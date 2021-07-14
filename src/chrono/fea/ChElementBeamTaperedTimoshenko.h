@@ -41,10 +41,6 @@ class ChApi ChElementBeamTaperedTimoshenko : public ChElementBeam,
                                  public ChLoadableUVW,
                                  public ChElementCorotational {
   private:
-    // only used inside this Class
-    // to store the shape functions
-    using ShapeVector = ChMatrixNM<double, 1, 10>;
-
     using ShapeFunctionN = ChMatrixNM<double, 6, 12>;
     using SFBlock = ChMatrixNM<double, 1, 4>;
     using ShapeFunction5Blocks = std::tuple<SFBlock, SFBlock, SFBlock, SFBlock, ChMatrixNM<double, 1, 2>>;
@@ -54,8 +50,6 @@ class ChApi ChElementBeamTaperedTimoshenko : public ChElementBeam,
                                           ShapeFunction5Blocks,   // restore blocks of first derivatives
                                           ShapeFunction2Blocks,   // restore blocks of second derivatives
                                           ShapeFunction2Blocks>;  // restore blocks of thrid derivatives
-
-  public:
 
   public:
 
@@ -134,9 +128,6 @@ class ChApi ChElementBeamTaperedTimoshenko : public ChElementBeam,
     ///      | .    .   .   0   .   .   .   .   .   3   .   .   |
     ///      | .    .   -6  .   8   .   .   .   -7  .   9   .   |
     ///      | .    6   .   .   .   8   .   7   .   .   .   9   |
-    /// // Old shape functions here, just for test
-    void ShapeFunctionsEuler(ShapeVector& N, double eta);
-
     // New shape functions for Timoshenko beam
     void ShapeFunctionsTimoshenko(ShapeFunctionGroup& NN, double eta);
 
@@ -226,10 +217,6 @@ class ChApi ChElementBeamTaperedTimoshenko : public ChElementBeam,
     /// Note, eta=-1 at node1, eta=+1 at node2.
     /// Results are not corotated, and are expressed in the reference system of beam.
     virtual void EvaluateSectionForceTorque(const double eta, ChVector<>& Fforce, ChVector<>& Mtorque) override;
-
-    // The old function for Euler beam, just for test
-    virtual void EvaluateSectionForceTorque0(const double eta, ChVector<>& Fforce, ChVector<>& Mtorque);
-
 
     /* To be completed: Created to be consistent with base class implementation*/
     virtual void EvaluateSectionStrain(const double eta, ChVector<>& StrainV) override {}
@@ -342,7 +329,6 @@ class ChApi ChElementBeamTaperedTimoshenko : public ChElementBeam,
     /// Flag that turns on/off the computation of the [Ki] inertial stiffness matrix.
     /// If false, Ki=0. Can be used for cpu speedup, profiling, tests. Default: true.
     //bool compute_inertia_stiffness_matrix = true;
-
 
     ChMatrixDynamic<> T; ///< transformation matrix for two nodes, from centerline to elastic axis
     ChMatrixDynamic<> Rc;
