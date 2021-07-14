@@ -334,10 +334,13 @@ void ChElasticityCosseratAdvancedGenericFPM::ComputeTransformMatrix() {
 }
 
 void ChElasticityCosseratAdvancedGenericFPM::UpdateEMatrix() {
-    // compute T
-    ComputeTransformMatrix();
-    // update Klaw after setting section rotation and EC/SC offset
-    this->Klaw = this->T.transpose() * this->Klaw * this->T;
+    if (!updated) {  // do it only once
+        // compute T
+        ComputeTransformMatrix();
+        // update Klaw after setting section rotation and EC/SC offset
+        this->Klaw = this->T.transpose() * this->Klaw * this->T;
+        updated = true;
+    }
 }
 
 

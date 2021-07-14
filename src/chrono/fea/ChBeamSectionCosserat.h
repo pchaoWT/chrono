@@ -559,6 +559,7 @@ class ChApi ChElasticityCosseratAdvancedGenericFPM : public ChElasticityCosserat
     double Sz;
 
     ChMatrixNM<double, 6, 6> T;
+    bool updated = false;
 
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
